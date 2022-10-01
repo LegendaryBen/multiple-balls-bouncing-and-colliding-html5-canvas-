@@ -22,13 +22,13 @@ function create_balls(x,y,speed,radius,angle,mass){
 }
 
 let balls = [];
-let different_ball_sizes = [13,17,20,15,18];
-let different_ball_speeds = [3,5,7,8,6,10];
+let different_ball_sizes = [5.5];
+let different_ball_speeds = [5];
 
 ~function initialize_balls(){
-    for(let i =0;i<4;i++){
-        let x = Math.floor(Math.random()*canvas.width);
-        let y =  Math.floor(Math.random()*canvas.height);
+    for(let i =0;i<20;i++){
+        let x = Math.floor(Math.random()*500);
+        let y =  Math.floor(Math.random()*500);
         let radius_num =  Math.floor(Math.random()*different_ball_sizes.length);
         let radius = different_ball_sizes[radius_num];
         let mass = radius;
@@ -62,16 +62,10 @@ function update_ball_position(){
 function check_wall_collision_for_the_balls(){
     for(let i = 0;i<balls.length;i++){
         let ball = balls[i];
-        if(ball.x - ball.radius <0 || ball.x + ball.radius>900){
-            ball.angle = 180 -ball.angle;
-            ball.radian = (Math.PI/180)*ball.angle;
-            ball.velocity_x =   Math.cos(ball.radian)*ball.speed;
-            ball.velocity_y =   Math.sin(ball.radian)*ball.speed;
+        if(ball.x - ball.radius <0 || ball.x +ball.radius >900){
+            ball.velocity_x = ball.velocity_x * -1;
         }else if(ball.y - ball.radius < 0 || ball.y + ball.radius > 700){
-            ball.angle = 360 - ball.angle ;
-            ball.radian = (Math.PI/180)*ball.angle;
-            ball.velocity_x =   Math.cos(ball.radian)*ball.speed;
-            ball.velocity_y =   Math.sin(ball.radian)*ball.speed;
+            ball.velocity_y = ball.velocity_y * -1;
         }
     }
 }
@@ -87,9 +81,40 @@ function check_ball_collision_against_themselves(){
             if(i == j){
                 continue;
             }else{
-                if(distance < (test_ball.radius + ball.radius)){
-                    // let dx = test_ball.x - ball.x
-                    // let collision_angle = Math.atan2()
+                if(distance <= (test_ball.radius + ball.radius)){
+
+                    //be calm and understand it
+                    //it was also difficult for me when i started
+                    // it is just simple physics
+
+                    let dx = test_ball.x - ball.x;
+                    let dy = test_ball.y - ball.y;
+
+                    let collision_angle = Math.atan2(dy,dx);
+
+                    let speed1 = Math.sqrt((test_ball.velocity_x*test_ball.velocity_x)+(test_ball.velocity_y*test_ball.velocity_y));
+                    let speed2 = Math.sqrt((ball.velocity_x*ball.velocity_x)+(ball.velocity_y*ball.velocity_y));
+
+                    let direction1 = Math.atan2(test_ball.velocity_y,test_ball.velocity_x);
+                    let direction2 = Math.atan2(ball.velocity_y,ball.velocity_x);
+
+                    let tem_velx_of_testball = Math.cos(direction1 - collision_angle)*speed1;
+                    let tem_vely_of_testball = Math.sin(direction1 - collision_angle)*speed1;
+
+                    let tem_velx_of_ball = Math.cos(direction2 - collision_angle)*speed2;
+                    let tem_vely_of_ball = Math.sin(direction2 -collision_angle)*speed2;
+
+                    let final_velx_of_testball = ((test_ball.mass - ball.mass)*tem_velx_of_testball + (ball.mass+ball.mass)*tem_velx_of_ball)/(test_ball.mass+ball.mass);
+                    let final_vely_of_testball = tem_vely_of_testball;
+
+                    let final_velx_of_ball = ((test_ball.mass + test_ball.mass)*tem_velx_of_testball + (ball.mass - test_ball.mass)*tem_velx_of_ball)/(test_ball.mass + ball.mass);
+                    let final_vely_of_ball = tem_vely_of_ball;
+
+                    test_ball.velocity_x = Math.cos(collision_angle)*final_velx_of_testball + Math.cos(collision_angle + Math.PI/2)*final_vely_of_testball;
+                    test_ball.velocity_y = Math.sin(collision_angle)*final_velx_of_testball + Math.sin(collision_angle + Math.PI/2)*final_vely_of_testball;
+
+                    ball.velocity_x = Math.cos(collision_angle)*final_velx_of_ball + Math.cos(collision_angle + Math.PI/2)*final_vely_of_ball;
+                    ball.velocity_y = Math.cos(collision_angle)*final_velx_of_ball + Math.cos(collision_angle + Math.PI/2)*final_vely_of_ball;
                 }
             }
             
