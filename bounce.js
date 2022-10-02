@@ -6,6 +6,7 @@ canvas.height = 700;
 
 let ctx = canvas.getContext("2d");
 
+
 function create_balls(x,y,speed,radius,angle,mass){
     this.x = x;
     this.y = y;
@@ -22,8 +23,9 @@ function create_balls(x,y,speed,radius,angle,mass){
 }
 
 let balls = [];
-let different_ball_sizes = [5.5];
-let different_ball_speeds = [5];
+let different_ball_sizes = [5];//you can add different sizes to the array , but the balls will eventually stick to themselves which is not a desired effect
+let different_ball_speeds = [5,12,10,8];
+let friction = 0.00001;
 
 ~function initialize_balls(){
     for(let i =0;i<20;i++){
@@ -122,6 +124,15 @@ function check_ball_collision_against_themselves(){
     }
 }
 
+//adding this function will eventually make the balls to slow down and stop;
+function add_friction_to_the_ball_after_collision(){
+    for(let i = 0;i<balls.length;i++){
+        let ball = balls[i];
+        ball.velocity_x = ball.velocity_x - (ball.velocity_x * friction);
+        ball.velocity_y = ball.velocity_y - (ball.velocity_y * friction);
+    }
+}
+
 
 function loop(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -129,7 +140,13 @@ function loop(){
     update_ball_position();
     check_wall_collision_for_the_balls();
     check_ball_collision_against_themselves();
+
+    // add_friction_to_the_ball_after_collision();
     requestAnimationFrame(loop);
 }
 
 loop();
+
+
+//most of the maths and physics were taken from the oreilly html5 canvas textbook;
+//you can as well improve the codes 
